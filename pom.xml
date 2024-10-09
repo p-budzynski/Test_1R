@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>pl.kurs</groupId>
+    <artifactId>test_1R</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+            <version>5.10.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.12.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.12.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+    <plugins>
+    <plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.12</version>
+    <configuration>
+        <outputDirectory>
+            ${project.build.directory}/jacoco
+        </outputDirectory>
+        <excludes>
+            <exclude>**/*pl/kurs/task1/app/*</exclude>
+            <exclude>**/*pl/kurs/task1/datatype/Rectangle.class</exclude>
+            <exclude>**/*pl/kurs/task1/datatype/Square.class</exclude>
+            <exclude>**/*pl/kurs/task1/datatype/Circle.class</exclude>
+
+            <exclude>**/*pl/kurs/task2/app/*</exclude>
+        </excludes>
+    </configuration>
+    <executions>
+    <execution>
+        <goals>
+            <goal>prepare-agent</goal>
+        </goals>
+    </execution>
+    <execution>
+        <id>report</id>
+        <phase>test</phase>
+        <goals>
+            <goal>report</goal>
+        </goals>
+    </execution>
+    </executions>
+    </plugin>
+    </plugins>
+    </build>
+
+</project>
