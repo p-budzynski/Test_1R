@@ -1,5 +1,7 @@
 package pl.kurs.task1.datatype;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -25,7 +27,8 @@ public class Square implements Shape {
         return Math.pow(side, 2);
     }
 
-    public static Square createSquare(double side) {
+    @JsonCreator
+    static Square createSquare(@JsonProperty("side") double side) {
         return new Square(side);
     }
 }

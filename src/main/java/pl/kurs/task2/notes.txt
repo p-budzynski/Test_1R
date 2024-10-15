@@ -14,3 +14,15 @@ zeby nie obciazac systemu to chcemy wprowadzic cache kursow walut, ktory trwa 10
 
 uwaga: cache ma byc thread-safe.
 
+
+-----UWAGI-----
+
+Zadanie 02:
+ CachedRate cachedRate = getCacheRate(cacheKey);
+        if (cachedRate != null) {
+            return amount * cachedRate.rate;
+        }
+tu jest racecondition
+
+lock.lock();
+lockujesz wszystko dla wszystkich, czy jak ktos pobiera pln -> usd to powiniene czekac az ktos inny skonczy CHF-> EUR?

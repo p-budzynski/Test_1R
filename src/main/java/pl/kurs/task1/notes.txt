@@ -24,3 +24,11 @@ Square sq2 = shapeFactory.createSquare(10); // jest juz kwadrat o boku 10, wiec 
 
 
 nalezy napisac testy jednostkowe shapeFactory i ich metoda fabrycznych sprawdzajac asercje interakcji z jakims cachem ktory ma w srodku i sprawdzic czy on faktycznie dziala.
+
+
+
+----- UWAGI -----
+
+Zadanie 01:
+ShapeSerializer i Deserializer są na wyrost, niepotrzebne, nie masz tu zadnej customowej serializacji,
+masz zwykle dziedziczenie ktore moglo by byc zrealizowane adnotacjami jacksonowymi.

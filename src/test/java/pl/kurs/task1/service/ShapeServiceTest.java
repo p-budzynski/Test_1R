@@ -7,10 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pl.kurs.task1.datatype.Circle;
-import pl.kurs.task1.datatype.Rectangle;
-import pl.kurs.task1.datatype.Shape;
-import pl.kurs.task1.datatype.Square;
+import pl.kurs.task1.datatype.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class ShapeServiceTest {
     private static final ShapeService shapeService = new ShapeService();
+    private static final ShapeFactory shapeFactory = new ShapeFactory();
     private static List<Shape> shapes;
     private Path tempFileSerializer;
     private Path tempFileDeserializer;
@@ -33,15 +31,15 @@ public class ShapeServiceTest {
     @BeforeAll
     static void setUp() {
         shapes = Arrays.asList(
-                Circle.createCircle(5),
-                Circle.createCircle(7),
-                Circle.createCircle(9),
-                Rectangle.createRectangle(5, 5),
-                Rectangle.createRectangle(10, 10),
-                Rectangle.createRectangle(20, 20),
-                Square.createSquare(10),
-                Square.createSquare(20),
-                Square.createSquare(30)
+                shapeFactory.createCircle(5),
+                shapeFactory.createCircle(7),
+                shapeFactory.createCircle(9),
+                shapeFactory.createRectangle(5, 5),
+                shapeFactory.createRectangle(10, 10),
+                shapeFactory.createRectangle(20, 20),
+                shapeFactory.createSquare(10),
+                shapeFactory.createSquare(20),
+                shapeFactory.createSquare(30)
         );
     }
 
@@ -90,45 +88,65 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenThereIsNoCircleInTheListOnMethodFindShapeWithLargestPerimeterOfType() {
+    void shouldThrowExceptionWhenThereIsNoCircleInTheListOnMethodFindShapeWithLargestPerimeterOfTypeCircle() {
         //given
         List<Shape> shapesWithoutCircles = Arrays.asList(
-                Rectangle.createRectangle(5, 5),
-                Square.createSquare(5)
+                shapeFactory.createRectangle(5, 5),
+                shapeFactory.createSquare(5)
         );
 
         //when then
         assertThatThrownBy(() -> shapeService.findShapeWithLargestPerimeterOfType(shapesWithoutCircles, Circle.class))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("No shapes of the specified type.");
+                .hasMessage("No shapes of the specified type 'Circle'.");
     }
 
     @Test
-    void shouldThrowExceptionWhenThereIsNoRectangleInTheListOnMethodFindShapeWithLargestPerimeterOfType() {
-        //given
-        List<Shape> shapesWithoutCircles = Arrays.asList(
-                Circle.createCircle(7),
-                Square.createSquare(5)
-        );
+    void shouldReturnShapeWithLargestPerimeterOfTypeRectangle() {
+        //when
+        Shape largestPerimeterRectangle = shapeService.findShapeWithLargestPerimeterOfType(shapes, Rectangle.class);
 
-        //when then
-        assertThatThrownBy(() -> shapeService.findShapeWithLargestPerimeterOfType(shapesWithoutCircles, Rectangle.class))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("No shapes of the specified type.");
+        //then
+        assertThat(largestPerimeterRectangle).isInstanceOf(Rectangle.class);
+        assertThat(largestPerimeterRectangle.calculatePerimeter()).isEqualTo(80.0);
     }
 
     @Test
-    void shouldThrowExceptionWhenThereIsNoSquareInTheListOnMethodFindShapeWithLargestPerimeterOfType() {
+    void shouldThrowExceptionWhenThereIsNoRectangleInTheListOnMethodFindShapeWithLargestPerimeterOfTypeRectangle() {
         //given
-        List<Shape> shapesWithoutCircles = Arrays.asList(
-                Rectangle.createRectangle(5, 5),
-                Circle.createCircle(3)
+        List<Shape> shapesWithoutRectangle = Arrays.asList(
+                shapeFactory.createCircle(7),
+                shapeFactory.createSquare(5)
         );
 
         //when then
-        assertThatThrownBy(() -> shapeService.findShapeWithLargestPerimeterOfType(shapesWithoutCircles, Square.class))
+        assertThatThrownBy(() -> shapeService.findShapeWithLargestPerimeterOfType(shapesWithoutRectangle, Rectangle.class))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("No shapes of the specified type.");
+                .hasMessage("No shapes of the specified type 'Rectangle'.");
+    }
+
+    @Test
+    void shouldReturnShapeWithLargestPerimeterOfTypeSquare() {
+        //when
+        Shape largestPerimeterSquare = shapeService.findShapeWithLargestPerimeterOfType(shapes, Square.class);
+
+        //then
+        assertThat(largestPerimeterSquare).isInstanceOf(Square.class);
+        assertThat(largestPerimeterSquare.calculatePerimeter()).isEqualTo(120.0);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenThereIsNoSquareInTheListOnMethodFindShapeWithLargestPerimeterOfTypeSquare() {
+        //given
+        List<Shape> shapesWithoutSquare = Arrays.asList(
+                shapeFactory.createRectangle(5, 5),
+                shapeFactory.createCircle(3)
+        );
+
+        //when then
+        assertThatThrownBy(() -> shapeService.findShapeWithLargestPerimeterOfType(shapesWithoutSquare, Square.class))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("No shapes of the specified type 'Square'.");
     }
 
     @ParameterizedTest
@@ -144,9 +162,9 @@ public class ShapeServiceTest {
     void shouldExportShapesToJson() throws IOException {
         //given
         List<Shape> shapeList = Arrays.asList(
-                Circle.createCircle(5),
-                Square.createSquare(9),
-                Rectangle.createRectangle(2,7)
+                shapeFactory.createCircle(5),
+                shapeFactory.createSquare(9),
+                shapeFactory.createRectangle(2,7)
         );
 
         //when
@@ -154,9 +172,9 @@ public class ShapeServiceTest {
         String actualJson = Files.readString(tempFileSerializer);
         String expectedJson = """
                 [
-                {"type":"circle","radius":"5.0"},
-                {"type":"square","side":"9.0"},
-                {"type":"rectangle","width":"2.0","height":"7.0"}
+                {"type":"circle","radius":5.0},
+                {"type":"square","side":9.0},
+                {"type":"rectangle","width":2.0,"height":7.0}
                 ]
                 """;
 
@@ -169,9 +187,9 @@ public class ShapeServiceTest {
         //given
         String expectedJson = """
                 [
-                {"type":"circle","radius":"5.0"},
-                {"type":"square","side":"9.0"},
-                {"type":"rectangle","width":"2.0","height":"7.0"}
+                {"type":"circle","radius":5.0},
+                {"type":"square","side":9.0},
+                {"type":"rectangle","width":2.0,"height":7.0}
                 ]
                 """;
         Files.writeString(tempFileDeserializer, expectedJson);
@@ -198,9 +216,9 @@ public class ShapeServiceTest {
         //given
         String expectedJson = """
                 [
-                {"type":"triangle","height":"5.0"},
-                {"type":"square","side":"9.0"},
-                {"type":"rectangle","width":"2.0","height":"7.0"}
+                {"type":"triangle","height":5.0},
+                {"type":"square","side":9.0},
+                {"type":"rectangle","width":2.0,"height":7.0}
                 ]
                 """;
         Files.writeString(tempFileWithUnknownType, expectedJson);
@@ -208,7 +226,7 @@ public class ShapeServiceTest {
         //when then
         assertThatThrownBy(() -> shapeService.importShapesFromJson(tempFileWithUnknownType.toString()))
                 .isInstanceOf(JsonMappingException.class)
-                .hasMessageContaining("Unknown shape type: triangle");
+                .hasMessageContaining("Could not resolve type id 'triangle'");
     }
 
     private static Stream<List<Shape>> provideEmptyShapesCollections() {

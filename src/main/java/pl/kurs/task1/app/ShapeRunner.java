@@ -3,12 +3,11 @@ package pl.kurs.task1.app;
 import pl.kurs.task1.datatype.*;
 import pl.kurs.task1.service.ShapeService;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class ShapeRunner {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         ShapeFactory shapeFactory = new ShapeFactory();
         ShapeService shapeService = new ShapeService();
 
@@ -20,7 +19,7 @@ public class ShapeRunner {
                 sq2,
                 shapeFactory.createSquare(20),
                 shapeFactory.createCircle(60),
-                shapeFactory.createRetangle(15, 22)
+                shapeFactory.createRectangle(15, 22)
         );
 
         System.out.println(sq1 == sq2);
@@ -34,15 +33,15 @@ public class ShapeRunner {
         System.out.println(shapeService.findShapeWithLargestPerimeterOfType(shapeList, Square.class));
 
         List<Shape> shapeList2 = Arrays.asList(
-                Circle.createCircle(5),
-                Circle.createCircle(7),
-                Circle.createCircle(9),
-                Rectangle.createRectangle(5, 5),
-                Rectangle.createRectangle(10, 10),
-                Rectangle.createRectangle(20, 20),
-                Square.createSquare(10),
-                Square.createSquare(20),
-                Square.createSquare(30)
+                shapeFactory.createCircle(5),
+                shapeFactory.createCircle(7),
+                shapeFactory.createCircle(9),
+                shapeFactory.createRectangle(5, 5),
+                shapeFactory.createRectangle(10, 10),
+                shapeFactory.createRectangle(20, 20),
+                shapeFactory.createSquare(10),
+                shapeFactory.createSquare(20),
+                shapeFactory.createSquare(30)
         );
 
         System.out.println(shapeList2);
@@ -50,8 +49,6 @@ public class ShapeRunner {
         System.out.println(shapeService.findShapeWithLargestPerimeterOfType(shapeList2, Circle.class));
         System.out.println(shapeService.findShapeWithLargestPerimeterOfType(shapeList2, Rectangle.class));
         System.out.println(shapeService.findShapeWithLargestPerimeterOfType(shapeList2, Square.class));
-
-        System.out.println(Circle.createCircle(9).calculatePerimeter());
 
     }
 }

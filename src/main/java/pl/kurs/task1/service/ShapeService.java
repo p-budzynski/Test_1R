@@ -2,7 +2,6 @@ package pl.kurs.task1.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.kurs.task1.config.ObjectMapperHolder;
 import pl.kurs.task1.datatype.Shape;
 
 import java.io.File;
@@ -11,13 +10,15 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ShapeService {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public Shape findShapeWithLargestArea(List<Shape> shapes) {
         if (shapes == null || shapes.isEmpty()) {
             throw new IllegalArgumentException("Shapes list cannot be null or empty.");
         }
         return shapes.stream()
                 .max(Comparator.comparingDouble(Shape::calculateArea))
-                .orElseThrow(() -> new IllegalArgumentException("Cannot find shape with largest area."));
+                .orElse(null);
     }
 
     public Shape findShapeWithLargestPerimeterOfType(List<Shape> shapes, Class<?> type) {
@@ -25,20 +26,17 @@ public class ShapeService {
             throw new IllegalArgumentException("Shapes list cannot be null or empty.");
         }
         return shapes.stream()
-                .filter(shape -> shape.getClass().equals(type))
+                .filter(type::isInstance)
                 .max(Comparator.comparingDouble(Shape::calculatePerimeter))
-                .orElseThrow(() -> new IllegalArgumentException("No shapes of the specified type."));
+                .orElseThrow(() -> new IllegalArgumentException("No shapes of the specified type '" + type.getSimpleName() + "'."));
     }
 
     public void exportShapesToJson(List<Shape> shapes, String filePath) throws IOException {
-        ObjectMapper objectMapper = ObjectMapperHolder.INSTANCE.getObjectMapper();
-        objectMapper.writeValue(new File(filePath), shapes);
+        objectMapper.writerFor(new TypeReference<List<Shape>>() {}).writeValue(new File(filePath), shapes);
     }
 
     public List<Shape> importShapesFromJson(String filePath) throws IOException {
-        ObjectMapper objectMapper = ObjectMapperHolder.INSTANCE.getObjectMapper();
-        return objectMapper.readValue(new File(filePath), new TypeReference<>() {
-        });
+        return objectMapper.readerFor(new TypeReference<List<Shape>>() {}).readValue(new File(filePath));
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ShapeFactory {
+
     private static final Map<String, Shape> cache = new ConcurrentHashMap<>();
 
     public Square createSquare(double side) {
@@ -16,7 +17,7 @@ public class ShapeFactory {
         return (Circle) cache.computeIfAbsent(key, k -> Circle.createCircle(radius));
     }
 
-    public Rectangle createRetangle(double width, double height) {
+    public Rectangle createRectangle(double width, double height) {
         String key = "Rectangle:" + width + ":" + height;
         return (Rectangle) cache.computeIfAbsent(key, k -> Rectangle.createRectangle(width, height));
     }

@@ -2,26 +2,27 @@ package pl.kurs.task2.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Getter
 @Setter
 public class CurrencyService {
     private final String apiURL = "https://api.apilayer.com/exchangerates_data/";
     private final String apiKey = "BnW7ENBiBLBknHJSmAIOb4xax9pdohFL";
-    private final ConcurrentHashMap<String, CachedRate> cache = new ConcurrentHashMap<>();
+    private final Map<String, CachedRate> cache = new ConcurrentHashMap<>();
+    private final Map<String, Lock> locks = new ConcurrentHashMap<>();
     private final long cacheTtlMillis = 10000;
-    private final ReentrantLock lock = new ReentrantLock();
 
     private HttpURLConnection httpURLConnection;
-
-    public CurrencyService() {
-    }
 
     public CurrencyService(HttpURLConnection httpURLConnection) {
         this.httpURLConnection = httpURLConnection;
@@ -39,25 +40,26 @@ public class CurrencyService {
 
     public double exchange(String currencyFrom, String currencyTo, double amount) throws Exception {
         String cacheKey = currencyFrom + "_" + currencyTo;
+        long currentTime = System.currentTimeMillis();
 
-        CachedRate cachedRate = getCacheRate(cacheKey);
-        if (cachedRate != null) {
+        CachedRate cachedRate = cache.get(cacheKey);
+        if (cachedRate != null && (currentTime - cachedRate.timestamp) < cacheTtlMillis) {
             return amount * cachedRate.rate;
         }
 
+        Lock lock = locks.computeIfAbsent(cacheKey, k -> new ReentrantLock());
         lock.lock();
-
         try {
-            cachedRate = getCacheRate(cacheKey);
-            if (cachedRate == null) {
-                double newRate = fetchExchangeRateFromApi(currencyFrom, currencyTo);
-                updateCache(cacheKey, newRate);
-                return amount * newRate;
-            } else {
+            cachedRate = cache.get(cacheKey);
+            if (cachedRate != null && (currentTime - cachedRate.timestamp) < cacheTtlMillis) {
                 return amount * cachedRate.rate;
             }
+            double newRate = fetchExchangeRateFromApi(currencyFrom, currencyTo);
+            updateCache(cacheKey, newRate);
+            return amount * newRate;
         } finally {
             lock.unlock();
+            locks.remove(cacheKey);
         }
     }
 
@@ -87,22 +89,12 @@ public class CurrencyService {
         }
     }
 
-    protected void updateCacheForTesting(String cacheKey, double newRate, long timestamp) {
-        cache.put(cacheKey, new CachedRate(newRate, timestamp));
-    }
-
-    private CachedRate getCacheRate(String cacheKey) {
-        long currentTime = System.currentTimeMillis();
-        CachedRate cachedRate = cache.get(cacheKey);
-        if (cachedRate != null && (currentTime - cachedRate.timestamp) < cacheTtlMillis) {
-            return cachedRate;
-        }
-        return null;
-    }
-
     private void updateCache(String cacheKey, double newRate) {
-        long currentTime = System.currentTimeMillis();
-        cache.put(cacheKey, new CachedRate(newRate, currentTime));
+        cache.put(cacheKey, new CachedRate(newRate, System.currentTimeMillis()));
+    }
+
+    protected void updateCacheForTesting(String cacheKey, double rate, long timestamp) {
+        cache.put(cacheKey, new CachedRate(rate, timestamp));
     }
 
 }

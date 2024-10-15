@@ -1,5 +1,7 @@
 package pl.kurs.task1.datatype;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -8,7 +10,7 @@ import lombok.ToString;
 public class Circle implements Shape {
     private final double radius;
 
-    private Circle(double radius) {
+    public Circle(double radius) {
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius length must be greater than zero.");
         }
@@ -25,7 +27,8 @@ public class Circle implements Shape {
         return Math.PI * Math.pow(radius, 2);
     }
 
-    public static Circle createCircle(double radius) {
+    @JsonCreator
+    static Circle createCircle(@JsonProperty("radius") double radius) {
         return new Circle(radius);
     }
 

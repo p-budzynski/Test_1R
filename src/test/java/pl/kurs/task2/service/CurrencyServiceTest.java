@@ -141,13 +141,4 @@ public class CurrencyServiceTest {
                 .hasMessage("Failed to fetch exchange rate from API.");
     }
 
-    @Test
-    void shouldUseDefaultConstructor() {
-        //given
-        CurrencyService currencyService = new CurrencyService();
-
-        //then
-        assertNotNull(currencyService);
-    }
-
 }
